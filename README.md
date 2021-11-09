@@ -62,7 +62,7 @@ If you're successful, you should see the a balance resembling something like `10
 
 ### Connecting The Front-End
 
-In `.env` set the `NEXT_PUBLIC_GREETER_ADDRESS` environment variable to the address your smart contract was deployed to. For example, `0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0`.
+In `.env` set the `NEXT_PUBLIC_HOODIEMON_ADDRESS` environment variable to the address your smart contract was deployed to. For example, `0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0`.
 
 In a new terminal window, load the front-end with `npm run dev`. If you want to use an alternate port from `3000`, use `npm run dev -- --port=1234`, or whatever port number you prefer.
 
@@ -140,7 +140,7 @@ You'll be able to see all historical transactions and events here.
 
 ### Testing The Functionality
 
-Change the `NEXT_PUBLIC_GREETER_ADDRESS` variable in `.env` to be the smart contract address on the Ropsten Test Network (for example, `0x9045cEc7161f380C224ae95c15EbE96659A53c46`).
+Change the `NEXT_PUBLIC_HOODIEMON_ADDRESS` variable in `.env` to be the smart contract address on the Ropsten Test Network (for example, `0x9045cEc7161f380C224ae95c15EbE96659A53c46`).
 
 Start (or restart) the front-end using `npm run dev`.
 
