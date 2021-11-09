@@ -3,7 +3,8 @@ import type { NextPage } from "next";
 import Image from 'next/image'
 import type { ChangeEvent } from "react"
 import { ethers } from 'ethers'
-import HoodieMonToken from '../src/artifacts/contracts/HoodieMonToken.sol/HoodieMonToken.json' 
+import HoodieMonTokenArtifact from '../src/artifacts/contracts/HoodieMonToken.sol/HoodieMonToken.json' 
+import { HoodieMonToken } from '../typechain/'
 const P5Wrapper = dynamic(() => import("../lib/generative/P5Wrapper"), { ssr: false });
 import { setAttribute, pixelForSp } from "../lib/generative/shetches/pixel";
 import { useEffect, useState } from "react";
@@ -24,7 +25,7 @@ const SamplePage: NextPage = () => {
     // const PRICE = "0.006"
     const PRE_PRICE = "5"
     const PRICE = "10"
-    const [hoodiemonContract, setHoodiemonContract] = useState<ethers.Contract | null>(null)
+    const [hoodiemonContract, setHoodiemonContract] = useState<HoodieMonToken | null>(null)
     const [name, setName] = useState('')
     // const [tokenImage, setTokenImage] = useState('')
     // const [tokenUri, setTokenUri] = useState('')
@@ -55,7 +56,7 @@ const SamplePage: NextPage = () => {
             const provider = new ethers.providers.Web3Provider((window as any).ethereum);
             const signer = provider.getSigner()
             try {
-                const contract = new ethers.Contract(process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS, HoodieMonToken.abi, signer)
+                const contract = new ethers.Contract(process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS, HoodieMonTokenArtifact.abi, signer) as HoodieMonToken
                 setHoodiemonContract(contract)
                 const signerAddress = await signer.getAddress()
                 setConnectedWalletAddressState(signerAddress)
@@ -82,8 +83,8 @@ const SamplePage: NextPage = () => {
             try {
                 if(!hoodiemonContract) return
                 // const ownedTokenNum = await hoodiemonContract.balanceOf(connectedWalletAddress)
-                const totalSupply = await hoodiemonContract.totalSupply({from: connectedWalletAddress})
                 // setBalance(Number(ownedTokenNum))
+                const totalSupply = await hoodiemonContract.totalSupply({from: connectedWalletAddress})
                 setTotalTokens(Number(totalSupply))
             } catch(error) {
                 console.log("error", error)
@@ -163,22 +164,28 @@ const SamplePage: NextPage = () => {
             const transaction = totalTokens < 100 ? await hoodiemonContract.preMint(ipfsJson, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRE_PRICE)}) : await hoodiemonContract.mint(ipfsJson, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRICE)})
             const res = await transaction.wait()
             console.log('res', res)
-            const event = res.events[0].args
-            const tokenId:string = Number(event.tokenId).toString()
-            console.log('tokenId', tokenId)
+            if(res.events && res.events.length>0 && res.events[0].args){
+                const event = res.events[0].args
+                const tokenId:string = Number(event.tokenId).toString()
+                console.log('tokenId', tokenId)
 
-            const hoodiemonDoc: HoodiemonType = {
-                tokenId: tokenId,
-                name: name,
-                address: connectedWalletAddress,
-                imageUrl: ipfsImage,
-                tokenUri: ipfsJson,
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                const hoodiemonDoc: HoodiemonType = {
+                    tokenId: tokenId,
+                    name: name,
+                    address: connectedWalletAddress,
+                    imageUrl: ipfsImage,
+                    tokenUri: ipfsJson,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                }
+
+                console.log(hoodiemonDoc)
+                await createTokenDoc(connectedWalletAddress, tokenId, hoodiemonDoc)
+            } else {
+                setModalTitle(t.FAILURE_MODAL_TITLE)
+                setModalMainText(t.FAILURE_MODAL_TEXT)
             }
 
-            console.log(hoodiemonDoc)
-            await createTokenDoc(connectedWalletAddress, tokenId, hoodiemonDoc)
             setShowLoading(false)
             setShowModal(true)
         } catch (error) {
