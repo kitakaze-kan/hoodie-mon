@@ -45,14 +45,15 @@ const SamplePage: NextPage = () => {
 
 
     useEffect( () => {
-        if ( !(hasEthereum())) {
-            setMessage(`MetaMask unavailable`)
-          return
-        }
-
         async function initAddressAndContract() {
+            await requestAccount()
+
+            if ( !(hasEthereum())) {
+                setMessage(`MetaMask unavailable`)
+              return
+            }
             if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
-            await requestAccount()  
+
             const provider = new ethers.providers.Web3Provider((window as any).ethereum);
             const signer = provider.getSigner()
             try {
@@ -113,10 +114,12 @@ const SamplePage: NextPage = () => {
     }
 
     const connectWallet = async () => {
-        if(! hasEthereum()) {
+        await requestAccount()
+
+        if(!hasEthereum()) {
             setMessage(`MetaMask unavailable`)
             return
-          }
+        }
         const provider = new ethers.providers.Web3Provider((window as any).ethereum);
         const signer = provider.getSigner()
         try {
