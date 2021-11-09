@@ -20,9 +20,4 @@ if (!apps.length) {
 
 const firestore = getFirestore(app);
 
-// if (process.env.NODE_ENV !== 'production') {
-//     firestore.useEmulator("localhost", 8081);
-//     functions.useEmulator('localhost', 5001)
-// }
-
 export { firestore, config, app }

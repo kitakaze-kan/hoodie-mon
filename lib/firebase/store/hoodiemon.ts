@@ -1,5 +1,5 @@
 import { firestore } from '../app'
-import { collection,  getDoc, addDoc,setDoc, doc, updateDoc, getDocs, query, where } from 'firebase/firestore/lite'
+import { collection, setDoc, doc, getDocs } from 'firebase/firestore/lite'
 import { HoodiemonType } from '../../../interfaces';
 
 

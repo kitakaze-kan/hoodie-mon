@@ -12,6 +12,5 @@ export const setIpfsJson = async (imageUrl: string, name: string, tokenNum: numb
 
 export const setImageToIpfs = async (blob: Blob):Promise<string> => {
     const {path} = await ipfs.add(blob)
-    console.log(path)
     return `https://ipfs.infura.io/ipfs/${path}`
 }

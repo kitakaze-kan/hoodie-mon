@@ -33,10 +33,7 @@ export const P5Wrapper: React.VFC<Props> = ({sketch, update, save, onClickSave})
           const canvas = wrapper.current.firstChild as HTMLCanvasElement
           // const uri = canvas.toDataURL()
           canvas.toBlob(async function(result) {
-              console.log(result);
               onClickSave(result)
-              // let buffer = await result?.arrayBuffer()
-              // onClickSave(buffer)
           }, 'image/jpeg');
         }
       }
