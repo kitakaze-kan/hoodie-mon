@@ -2,20 +2,22 @@ import dynamic from "next/dynamic";
 import type { NextPage } from "next";
 import Image from 'next/image'
 import type { ChangeEvent } from "react"
+import { isMobile } from "react-device-detect"
 import { ethers } from 'ethers'
+import detectEthereumProvider from '@metamask/detect-provider'
 import HoodieMonTokenArtifact from '../src/artifacts/contracts/HoodieMonToken.sol/HoodieMonToken.json' 
 import { HoodieMonToken } from '../typechain/'
 const P5Wrapper = dynamic(() => import("../lib/generative/P5Wrapper"), { ssr: false });
 import { setAttribute, pixelForSp } from "../lib/generative/shetches/pixel";
 import { useEffect, useState } from "react";
 import { AttributeProps, createAttr } from "../lib/generative/attributes/createAttribute";
-import { hasEthereum } from "../utils/ethereum";
 import { setImageToIpfs, setIpfsJson } from "../lib/ipfs/manager";
 import { HoodiemonType } from "../interfaces";
 import { createTokenDoc, getMintedTokens } from "../lib/firebase/store/hoodiemon";
 import { useTranslate } from "../lib/lang/useTranslate";
 import { LoadingModal } from "../components/LoadingModal";
 import { BaseModal } from "../components/BaseModal";
+
 
 const SamplePage: NextPage = () => {
 
@@ -43,42 +45,43 @@ const SamplePage: NextPage = () => {
     const [modalTitle, setModalTitle] = useState(t.SCCESS_MODAL_TITLE)
     const [modalMainText, setModalMainText] = useState(t.SCCESS_MODAL_TEXT)
 
+    useEffect(() => {
 
-    useEffect( () => {
-        async function initAddressAndContract() {
-            await requestAccount()
+        const init = async () => {
+            const ethereumProvider = await detectEthereumProvider({ mustBeMetaMask: true }) as ethers.providers.ExternalProvider
+            if (ethereumProvider && window.ethereum?.isMetaMask) {
+                await requestAccount()
 
-            if ( !(hasEthereum())) {
-                setMessage(`MetaMask unavailable`)
-              return
-            }
-            if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
+                const provider = new ethers.providers.Web3Provider(ethereumProvider);
+                const signer = provider.getSigner()
+                if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
 
-            const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-            const signer = provider.getSigner()
-            try {
-                const contract = new ethers.Contract(process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS, HoodieMonTokenArtifact.abi, signer) as HoodieMonToken
-                setHoodiemonContract(contract)
-                const signerAddress = await signer.getAddress()
-                setConnectedWalletAddressState(signerAddress)
-                setMessage("")
-            } catch(error) {
-                setMessage('No wallet connected')
-                console.log("error", error)
-                return;
-            }
-        }
-        
-        initAddressAndContract();
+                try {
+                    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS, HoodieMonTokenArtifact.abi, signer) as HoodieMonToken
+                    setHoodiemonContract(contract)
+                    const signerAddress = await signer.getAddress()
+                    setConnectedWalletAddressState(signerAddress)
+                    setMessage("")
+                } catch(error) {
+                    setMessage('No wallet connected')
+                    console.log("error", error)
+                    return;
+                }
+            } else {
+                setMessage(`MetaMask unavailable. Please install it.`)
+              return;
+            };
+          };
+        init();
+
     },[])
 
     useEffect( () => {
-        if ( !(hasEthereum())) {
-            setMessage(`MetaMask unavailable`)
-          return
-        }
-
         async function getToken() {
+            const ethereumProvider = await detectEthereumProvider({ mustBeMetaMask: true }) as ethers.providers.ExternalProvider
+            if (!(ethereumProvider && window.ethereum?.isMetaMask)) {
+                setMessage(`MetaMask unavailable. Please install Metamask App or extension.`)
+            }
             if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
             await requestAccount()  
             try {
@@ -114,22 +117,29 @@ const SamplePage: NextPage = () => {
     }
 
     const connectWallet = async () => {
-        await requestAccount()
+        const ethereumProvider = await detectEthereumProvider({ mustBeMetaMask: true }) as ethers.providers.ExternalProvider
+        if (ethereumProvider && window.ethereum?.isMetaMask) {
+            await requestAccount()
 
-        if(!hasEthereum()) {
-            setMessage(`MetaMask unavailable`)
-            return
-        }
-        const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-        const signer = provider.getSigner()
-        try {
-            const signerAddress = await signer.getAddress()
-            setConnectedWalletAddressState(signerAddress)
-            setMessage("")
-        } catch {
-            setMessage('No wallet connected')
+            const provider = new ethers.providers.Web3Provider(ethereumProvider);
+            const signer = provider.getSigner()
+            if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
+
+            try {
+                const signerAddress = await signer.getAddress()
+                setConnectedWalletAddressState(signerAddress)
+                setMessage("")
+            } catch {
+                setMessage('No wallet connected')
+                return;
+            }
+        } else {
+            if(isMobile) {
+                openMetamaskViaDeepLink()
+            }
+            setMessage(`MetaMask unavailable. Please install Metamask App or extension.`)
             return;
-        }
+        };
     }
 
     const handoleDraw = () => {
@@ -159,10 +169,14 @@ const SamplePage: NextPage = () => {
             setShowLoading(true)
             const ipfsImage = await setImageToIpfs(blob)
             const ipfsJson = await setIpfsJson(ipfsImage, name, totalTokens)
-            // setTokenImage(ipfsImage)
-            // setTokenUri(ipfsJson)
 
-            if(!hoodiemonContract) return
+            if(!hoodiemonContract) {
+                setModalTitle(t.FAILURE_MODAL_TITLE)
+                setModalMainText("there is no contract")
+                setShowLoading(false)
+                setShowModal(true)
+                return
+            }
 
             const transaction = totalTokens < 100 ? await hoodiemonContract.preMint(ipfsJson, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRE_PRICE)}) : await hoodiemonContract.mint(ipfsJson, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRICE)})
             const res = await transaction.wait()
@@ -220,6 +234,10 @@ const SamplePage: NextPage = () => {
         setModalTitle(t.SCCESS_MODAL_TITLE)
         setModalMainText(t.SCCESS_MODAL_TEXT)
         setShowModal(false)
+    }
+
+    const openMetamaskViaDeepLink = () => {
+        window.open(process.env.NEXT_PUBLIC_METAMASK_DEEP_LINK, '_blank')
     }
 
     return (
