@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import type { NextPage } from "next";
 import Image from 'next/image'
 import type { ChangeEvent } from "react"
-import { BigNumber, BigNumberish, ethers, utils } from 'ethers'
+import { ethers } from 'ethers'
 import HoodieMonToken from '../src/artifacts/contracts/HoodieMonToken.sol/HoodieMonToken.json' 
 const P5Wrapper = dynamic(() => import("../lib/generative/P5Wrapper"), { ssr: false });
 import { setAttribute, pixelForSp } from "../lib/generative/shetches/pixel";
@@ -16,20 +16,6 @@ import { useTranslate } from "../lib/lang/useTranslate";
 import { LoadingModal } from "../components/LoadingModal";
 import { BaseModal } from "../components/BaseModal";
 
-// const ipfs = create({ host: "ipfs.infura.io", port: 5001, protocol: "https" });
-
-const initAttr:AttributeProps = {
-    name: "",
-    backbround: "#f3f3f3",
-    mainColor: "#191970",
-    subColor: "#1e90ff",
-    accentColor: "#ec4079",
-    facePoint: [],
-    head: 0,
-    eye: 0,
-    checst: 0
-}
-
 const SamplePage: NextPage = () => {
 
     const t = useTranslate()
@@ -40,15 +26,15 @@ const SamplePage: NextPage = () => {
     const PRICE = "10"
     const [hoodiemonContract, setHoodiemonContract] = useState<ethers.Contract | null>(null)
     const [name, setName] = useState('')
-    const [tokenImage, setTokenImage] = useState('')
-    const [tokenUri, setTokenUri] = useState('')
+    // const [tokenImage, setTokenImage] = useState('')
+    // const [tokenUri, setTokenUri] = useState('')
+    // const [balance, setBalance] = useState<number>(0)
     const [update, setUpdate] = useState(false)
     const [save, setSave] = useState(false)
     const [isMintable, setIsMintable] = useState(false)
     const [currentAttr, setCurrentAttr] = useState<AttributeProps | null>()
     const [connectedWalletAddress, setConnectedWalletAddressState] = useState('')
     const [message, setMessage] = useState('')
-    const [balance, setBalance] = useState<number>(0)
     const [totalTokens, setTotalTokens] = useState<number>(0)
     const [mintedTokens, setMintedTokens] = useState<HoodiemonType[]>([])
     const [showLoading, setShowLoading] = useState(false)
@@ -95,9 +81,9 @@ const SamplePage: NextPage = () => {
             await requestAccount()  
             try {
                 if(!hoodiemonContract) return
-                const ownedTokenNum = await hoodiemonContract.balanceOf(connectedWalletAddress)
+                // const ownedTokenNum = await hoodiemonContract.balanceOf(connectedWalletAddress)
                 const totalSupply = await hoodiemonContract.totalSupply({from: connectedWalletAddress})
-                setBalance(Number(ownedTokenNum))
+                // setBalance(Number(ownedTokenNum))
                 setTotalTokens(Number(totalSupply))
             } catch(error) {
                 console.log("error", error)
@@ -169,12 +155,10 @@ const SamplePage: NextPage = () => {
             setShowLoading(true)
             const ipfsImage = await setImageToIpfs(blob)
             const ipfsJson = await setIpfsJson(ipfsImage, name, totalTokens)
-            setTokenImage(ipfsImage)
-            setTokenUri(ipfsJson)
+            // setTokenImage(ipfsImage)
+            // setTokenUri(ipfsJson)
 
             if(!hoodiemonContract) return
-            console.log("tokenUri", ipfsJson)
-            console.log("name", name)
 
             const transaction = totalTokens < 100 ? await hoodiemonContract.preMint(ipfsJson, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRE_PRICE)}) : await hoodiemonContract.mint(ipfsJson, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRICE)})
             const res = await transaction.wait()
