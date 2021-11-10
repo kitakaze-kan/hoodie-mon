@@ -5,15 +5,15 @@ import type { ChangeEvent } from "react"
 import { isMobile } from "react-device-detect"
 import { ethers } from 'ethers'
 import detectEthereumProvider from '@metamask/detect-provider'
-import HoodieMonTokenArtifact from '../src/artifacts/contracts/HoodieMonToken.sol/HoodieMonToken.json' 
-import { HoodieMonToken } from '../typechain/'
+import HoodieCrewTokenArtifact from '../src/artifacts/contracts/HoodieCrewToken.sol/HoodieCrewToken.json' 
+import { HoodieCrewToken } from '../typechain/'
 const P5Wrapper = dynamic(() => import("../lib/generative/P5Wrapper"), { ssr: false });
 import { setAttribute, pixelForSp } from "../lib/generative/shetches/pixel";
 import { useEffect, useState } from "react";
 import { AttributeProps, createAttr } from "../lib/generative/attributes/createAttribute";
 import { setImageToIpfs, setJsonToIpfs } from "../lib/ipfs/manager";
-import { HoodiemonType } from "../interfaces";
-import { createTokenDoc, getMintedTokens, updateTokenId } from "../lib/firebase/store/hoodiemon";
+import { HoodieCrewType } from "../interfaces";
+import { createTokenDoc, getMintedTokens, updateTokenId } from "../lib/firebase/store/hoodiecrew";
 import { useTranslate } from "../lib/lang/useTranslate";
 import { LoadingModal } from "../components/LoadingModal";
 import { BaseModal } from "../components/BaseModal";
@@ -25,8 +25,9 @@ const SamplePage: NextPage = () => {
 
     const PRE_PRICE = "3"
     const PRICE = "10"
-    const [hoodiemonContract, setHoodiemonContract] = useState<HoodieMonToken | null>(null)
+    const [hoodieCrewContract, setHoodieCrewContract] = useState<HoodieCrewToken | null>(null)
     const [name, setName] = useState('')
+    const [shouldShowCaution, setShouldShowCaution] = useState(false)
     const [update, setUpdate] = useState(false)
     const [save, setSave] = useState(false)
     const [isMintable, setIsMintable] = useState(false)
@@ -34,7 +35,7 @@ const SamplePage: NextPage = () => {
     const [connectedWalletAddress, setConnectedWalletAddressState] = useState('')
     const [message, setMessage] = useState('')
     const [totalTokens, setTotalTokens] = useState<number>(0)
-    const [mintedTokens, setMintedTokens] = useState<HoodiemonType[]>([])
+    const [mintedTokens, setMintedTokens] = useState<HoodieCrewType[]>([])
     const [showLoading, setShowLoading] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [modalTitle, setModalTitle] = useState(t.SCCESS_MODAL_TITLE)
@@ -49,11 +50,11 @@ const SamplePage: NextPage = () => {
 
                 const prov = new ethers.providers.Web3Provider(ethereumProvider);
                 const signer = prov.getSigner()
-                if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
+                if(!process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS) return
 
                 try {
-                    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS, HoodieMonTokenArtifact.abi, signer) as HoodieMonToken
-                    setHoodiemonContract(contract)
+                    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS, HoodieCrewTokenArtifact.abi, signer) as HoodieCrewToken
+                    setHoodieCrewContract(contract)
                     const signerAddress = await signer.getAddress()
                     setConnectedWalletAddressState(signerAddress)
                     setMessage("")
@@ -77,13 +78,13 @@ const SamplePage: NextPage = () => {
             if (!(ethereumProvider && window.ethereum?.isMetaMask)) {
                 setMessage(`MetaMask unavailable. Please install Metamask App or extension.`)
             }
-            if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
+            if(!process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS) return
             await requestAccount()  
             try {
-                if(!hoodiemonContract) return
-                const ownedTokenNum = await hoodiemonContract.balanceOf(connectedWalletAddress)
+                if(!hoodieCrewContract) return
+                const ownedTokenNum = await hoodieCrewContract.balanceOf(connectedWalletAddress)
                 // setBalance(Number(ownedTokenNum))
-                const totalSupply = await hoodiemonContract.totalSupply({from: connectedWalletAddress})
+                const totalSupply = await hoodieCrewContract.totalSupply({from: connectedWalletAddress})
                 setTotalTokens(Number(totalSupply))
                 console.log("totalSupply", Number(totalSupply))
                 console.log("ownedTokenNum", Number(ownedTokenNum))
@@ -106,7 +107,10 @@ const SamplePage: NextPage = () => {
     useEffect( () => {
         if(!name) {
             setCurrentAttr(null)
+            setShouldShowCaution(false)
+            return
         }
+        setShouldShowCaution(!isRightName(name))
     },[name])
 
     async function requestAccount() {
@@ -120,7 +124,7 @@ const SamplePage: NextPage = () => {
 
             const prov = new ethers.providers.Web3Provider(ethereumProvider);
             const signer = prov.getSigner()
-            if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
+            if(!process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS) return
 
             try {
                 const signerAddress = await signer.getAddress()
@@ -140,6 +144,7 @@ const SamplePage: NextPage = () => {
     }
 
     const handoleDraw = () => {
+        if(shouldShowCaution) return
         const attr = createAttr(name)
         setAttribute(attr)
         setUpdate(true)
@@ -154,25 +159,26 @@ const SamplePage: NextPage = () => {
     }
 
     const handleSave = () => {
+        if(shouldShowCaution) return
         if(update){
             setSave(true)
         }
     }
 
     const MintNFT = async (blob: Blob | null) => {
-        if(!(blob && hoodiemonContract)) return
+        if(!(blob && hoodieCrewContract)) return
 
         console.log("MintNFT")
         setShowLoading(true)
 
         try {
-            let filter = hoodiemonContract.filters.Transfer(null, connectedWalletAddress, null);
-            hoodiemonContract.on(filter, async (from, to, value) => {
+            let filter = hoodieCrewContract.filters.Transfer(null, connectedWalletAddress, null);
+            hoodieCrewContract.on(filter, async (from, to, value) => {
                 console.log(`from: ${from} | to: ${to} | value: ${value}`)
                 if("0x0000000000000000000000000000000000000000" === from && connectedWalletAddress === to){
-                    const isExist = await hoodiemonContract.isExistFromOriginName(name)
+                    const isExist = await hoodieCrewContract.isExistFromOriginName(name)
                     if(isExist){
-                        const targetId = await hoodiemonContract.getTokenIdFromOriginName(name)
+                        const targetId = await hoodieCrewContract.getTokenIdFromOriginName(name)
                         if(targetId.toString() ===  value.toString()){
                             await updateTokenId(connectedWalletAddress, name, value.toString())
                         }
@@ -182,7 +188,7 @@ const SamplePage: NextPage = () => {
             
             const imageToIpfs = await setImageToIpfs(blob)
             const jsonToIpfs = await setJsonToIpfs(imageToIpfs, name)
-            const transaction = totalTokens < 100 ? await hoodiemonContract.preMint(jsonToIpfs, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRE_PRICE)}) : await hoodiemonContract.mint(jsonToIpfs, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRICE)})
+            const transaction = totalTokens < 100 ? await hoodieCrewContract.preMint(jsonToIpfs, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRE_PRICE)}) : await hoodieCrewContract.mint(jsonToIpfs, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRICE)})
             await transaction.wait()
             await addToFirestore(imageToIpfs, jsonToIpfs)
         } catch (error) {
@@ -197,7 +203,7 @@ const SamplePage: NextPage = () => {
     }
 
     const addToFirestore = async (tokenImage: string, tokenUri: string) => {
-        const hoodiemonDoc: HoodiemonType = {
+        const hoodieCrewDoc: HoodieCrewType = {
             tokenId: null,
             name: name,
             address: connectedWalletAddress,
@@ -206,7 +212,7 @@ const SamplePage: NextPage = () => {
             createdAt: new Date(),
             updatedAt: new Date(),
         }
-        await createTokenDoc(connectedWalletAddress, hoodiemonDoc)
+        await createTokenDoc(connectedWalletAddress, hoodieCrewDoc)
     }
 
     const toCheckTokenUri = (tokenUri: string) => {
@@ -215,9 +221,9 @@ const SamplePage: NextPage = () => {
 
     const withdraw = async () => {
 
-        if(!hoodiemonContract) return
+        if(!hoodieCrewContract) return
         try {
-            const transaction = await hoodiemonContract.withdraw({ from: connectedWalletAddress})
+            const transaction = await hoodieCrewContract.withdraw({ from: connectedWalletAddress})
             await transaction.wait()
         } catch (error) {
             console.log(error)
@@ -232,6 +238,11 @@ const SamplePage: NextPage = () => {
 
     const openMetamaskViaDeepLink = () => {
         window.open(process.env.NEXT_PUBLIC_METAMASK_DEEP_LINK, '_blank')
+    }
+
+    const isRightName = (name: string):boolean => {
+        if(name.match(/[^A-Za-z0-9]+/)) return false
+        return true
     }
 
     return (
@@ -300,8 +311,10 @@ const SamplePage: NextPage = () => {
                                             {t.BUTTON_TITLE_PREVIEW}
                                         </button>
                                     </div>
-                                    
                                 </div>
+                                {shouldShowCaution && (
+                                    <p className="text-red-400 pt-2">{t.NAME_CHECK_CAUTION}</p>
+                                )}
                             </div>
                         )}
                         {message && (

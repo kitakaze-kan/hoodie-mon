@@ -15,7 +15,7 @@ task("accounts", "Prints the list of accounts", async (hre:HardhatRuntimeEnviron
 });
 
  export default {
-  defaultNetwork: "matic",
+  // defaultNetwork: "matic",
   solidity: "0.8.4",
   paths: {
     artifacts: './src/artifacts'
@@ -30,7 +30,10 @@ task("accounts", "Prints the list of accounts", async (hre:HardhatRuntimeEnviron
     },
     matic: {
       url: process.env.MATIC_TEST_URL ? process.env.MATIC_TEST_URL : 'https://rpc-mumbai.maticvigil.com',
-      accounts: [`0x${process.env.MATIC_TEST_PRIVATE_KEY}`]
+      accounts: [`0x${process.env.MATIC_TEST_PRIVATE_KEY}`],
+      gas: 2100000,
+      gasPrice: 8000000000,
+      saveDeployments: true,
     }
   }
 };

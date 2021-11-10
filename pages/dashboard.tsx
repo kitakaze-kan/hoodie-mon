@@ -2,11 +2,11 @@ import type { NextPage } from "next";
 import { isMobile } from "react-device-detect"
 import { ethers } from 'ethers'
 import detectEthereumProvider from '@metamask/detect-provider'
-import HoodieMonTokenArtifact from '../src/artifacts/contracts/HoodieMonToken.sol/HoodieMonToken.json' 
-import { HoodieMonToken } from '../typechain'
+import HoodieCrewTokenArtifact from '../src/artifacts/contracts/HoodieCrewToken.sol/HoodieCrewToken.json' 
+import { HoodieCrewToken } from '../typechain/'
 import { useEffect, useState } from "react";
-import { HoodiemonType } from "../interfaces";
-import { getAllMintedTokens } from "../lib/firebase/store/hoodiemon";
+import { HoodieCrewType } from "../interfaces";
+import { getAllMintedTokens } from "../lib/firebase/store/hoodiecrew";
 import { useTranslate } from "../lib/lang/useTranslate";
 
 type TokenURIType = {
@@ -17,14 +17,14 @@ const DashboardPage: NextPage = () => {
 
     const t = useTranslate()
 
-    const [hoodiemonContract, setHoodiemonContract] = useState<HoodieMonToken | null>(null)
+    const [hoodieCrewContract, setHoodieCrewContract] = useState<HoodieCrewToken | null>(null)
     const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
     const [tokenUris, setTokenUris] = useState<TokenURIType[]>([])
     const [balance, setBalance] = useState<number>(0)
     const [connectedWalletAddress, setConnectedWalletAddressState] = useState('')
     const [message, setMessage] = useState('')
     const [totalTokens, setTotalTokens] = useState<number>(0)
-    const [mintedTokens, setMintedTokens] = useState<HoodiemonType[]>([])
+    const [mintedTokens, setMintedTokens] = useState<HoodieCrewType[]>([])
 
     useEffect(() => {
 
@@ -36,11 +36,11 @@ const DashboardPage: NextPage = () => {
                 const prov = new ethers.providers.Web3Provider(ethereumProvider);
                 setProvider(prov)
                 const signer = prov.getSigner()
-                if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
+                if(!process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS) return
 
                 try {
-                    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS, HoodieMonTokenArtifact.abi, signer) as HoodieMonToken
-                    setHoodiemonContract(contract)
+                    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS, HoodieCrewTokenArtifact.abi, signer) as HoodieCrewToken
+                    setHoodieCrewContract(contract)
                     const signerAddress = await signer.getAddress()
                     setConnectedWalletAddressState(signerAddress)
                     setMessage("")
@@ -64,20 +64,20 @@ const DashboardPage: NextPage = () => {
             if (!(ethereumProvider && window.ethereum?.isMetaMask)) {
                 setMessage(`MetaMask unavailable. Please install Metamask App or extension.`)
             }
-            if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
+            if(!process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS) return
             await requestAccount()  
             try {
-                if(!(hoodiemonContract && provider)) return
-                const balance = await provider.getBalance(process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS);
+                if(!(hoodieCrewContract && provider)) return
+                const balance = await provider.getBalance(process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS);
                 setBalance(Number(ethers.utils.formatEther(balance.toString())))
-                const totalSupply = await hoodiemonContract.totalSupply({from: connectedWalletAddress})
+                const totalSupply = await hoodieCrewContract.totalSupply({from: connectedWalletAddress})
                 setTotalTokens(Number(totalSupply))
                 console.log("totalSupply", Number(totalSupply))
 
                 let tokenArr:TokenURIType[] = []
                 for(let i=1; i<=Number(totalSupply); i++) {
                     console.log("token #", i)
-                    const tokenUri = await hoodiemonContract.tokenURI(i)
+                    const tokenUri = await hoodieCrewContract.tokenURI(i)
                     const tokenUriObg:TokenURIType = {
                         tokenid: i,
                         uri:tokenUri
@@ -92,7 +92,7 @@ const DashboardPage: NextPage = () => {
         }
 
         async function getMintedTokensFromFB() {
-            if(!hoodiemonContract) return
+            if(!hoodieCrewContract) return
             const tokens = await getAllMintedTokens()
             console.log(tokens)
             setMintedTokens(tokens)
@@ -114,7 +114,7 @@ const DashboardPage: NextPage = () => {
             const prov = new ethers.providers.Web3Provider(ethereumProvider);
             setProvider(prov)
             const signer = prov.getSigner()
-            if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
+            if(!process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS) return
 
             try {
                 const signerAddress = await signer.getAddress()
@@ -139,9 +139,9 @@ const DashboardPage: NextPage = () => {
 
     const withdraw = async () => {
 
-        if(!hoodiemonContract) return
+        if(!hoodieCrewContract) return
         try {
-            const transaction = await hoodiemonContract.withdraw({ from: connectedWalletAddress})
+            const transaction = await hoodieCrewContract.withdraw({ from: connectedWalletAddress})
             await transaction.wait()
         } catch (error) {
             console.log(error)
