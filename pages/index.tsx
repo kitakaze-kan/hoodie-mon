@@ -81,13 +81,9 @@ const SamplePage: NextPage = () => {
             if(!process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS) return
             await requestAccount()  
             try {
-                if(!hoodieCrewContract) return
-                const ownedTokenNum = await hoodieCrewContract.balanceOf(connectedWalletAddress)
-                // setBalance(Number(ownedTokenNum))
-                const totalSupply = await hoodieCrewContract.totalSupply({from: connectedWalletAddress})
+                if(!(connectedWalletAddress && hoodieCrewContract)) return
+                const totalSupply = await hoodieCrewContract.totalSupply()
                 setTotalTokens(Number(totalSupply))
-                console.log("totalSupply", Number(totalSupply))
-                console.log("ownedTokenNum", Number(ownedTokenNum))
             } catch(error) {
                 console.log("error", error)
                 return;
@@ -95,14 +91,23 @@ const SamplePage: NextPage = () => {
         }
 
         async function getMintedTokensFromFB() {
-            if(!connectedWalletAddress) return
+            if(!(connectedWalletAddress && hoodieCrewContract)) return
             const tokens = await getMintedTokens(connectedWalletAddress)
+            //chekc!!!
+            for(const token of tokens) {
+                if(!token.tokenId){
+                    const isExist = await hoodieCrewContract.isExistFromOriginName(token.name)
+                    if(isExist){
+                        const targetId = await hoodieCrewContract.getTokenIdFromOriginName(token.name)
+                        await updateTokenId(connectedWalletAddress, token.name, targetId.toString())
+                    }
+                }
+            }
             setMintedTokens(tokens)
         }
-        
         getToken();
         getMintedTokensFromFB()
-    },[connectedWalletAddress])
+    },[connectedWalletAddress, hoodieCrewContract])
 
     useEffect( () => {
         if(!name) {
@@ -167,14 +172,11 @@ const SamplePage: NextPage = () => {
 
     const MintNFT = async (blob: Blob | null) => {
         if(!(blob && hoodieCrewContract)) return
-
-        console.log("MintNFT")
         setShowLoading(true)
 
         try {
             let filter = hoodieCrewContract.filters.Transfer(null, connectedWalletAddress, null);
             hoodieCrewContract.on(filter, async (from, to, value) => {
-                console.log(`from: ${from} | to: ${to} | value: ${value}`)
                 if("0x0000000000000000000000000000000000000000" === from && connectedWalletAddress === to){
                     const isExist = await hoodieCrewContract.isExistFromOriginName(name)
                     if(isExist){
