@@ -84,6 +84,21 @@ export const BODY_SUB_GRID:GridSet[] = [
     {x:28, y:30,width: 1, height: 4},
 ]
 
+export const TABACCO_GRID_1:GridSet[] = [
+    {x:17, y:18,width: 7, height: 1}
+]
+
+export const TABACCO_GRID_2:GridSet[] = [
+    {x:24, y:18,width: 1, height: 1}
+]
+
+export const TABACCO_GRID_3:GridSet[] = [
+    {x:25, y:17,width: 1, height: 1},
+    {x:26, y:16,width: 2, height: 1},
+    {x:27, y:15,width: 3, height: 1}
+]
+
+
 export const BODY_CHECK:GridSet = {x:16, y:19,width: 1, height: 14}
 
 export const setBody = (p:p5, attr: AttributeProps) => {
@@ -137,7 +152,21 @@ export const setEye = (p:p5, attr: AttributeProps) => {
             })
         }
     }
-    
+}
+
+export const setTabacco = (p:p5, attr: AttributeProps) => {
+    if(attr.hasTobacco) {
+        TABACCO_GRID_1.forEach(grid => {
+            createPixel(p,grid.x, grid.y, grid.width, grid.height, attr.accentColor)
+        })
+        TABACCO_GRID_2.forEach(grid => {
+            createPixel(p,grid.x, grid.y, grid.width, grid.height, "#e53835")
+        })
+        TABACCO_GRID_3.forEach(grid => {
+            createPixel(p,grid.x, grid.y, grid.width, grid.height, attr.accentColor)
+        })
+    }
+
 }
 
 const createPixel = (p:p5, x:number, y:number, width:number, height: number, color: string) => {
@@ -170,3 +199,4 @@ const setMonoColor = (attr: AttributeProps):MonoColorSet => {
     }
 
 }
+

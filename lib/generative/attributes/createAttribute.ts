@@ -12,11 +12,12 @@ export type AttributeProps = {
     head: HEAD_TYPES
     eye: number
     checst: CHEST_TYPES
+    hasTobacco: boolean
 }
 
 const HEAD_ATTR_NUM = 6
 const EYE_ATTR_NUM = 4
-const CHEST_ATTR_NUM = 4
+const CHEST_ATTR_NUM = 5
 
 export const createAttr = (text:string):AttributeProps => {
 
@@ -29,6 +30,7 @@ export const createAttr = (text:string):AttributeProps => {
     let head = 0
     let eye = 0
     let checst = 0
+    let hasTobacco = false
 
     const hex = SHA256(text).toString()
 
@@ -66,6 +68,7 @@ export const createAttr = (text:string):AttributeProps => {
         eye = setExtraType(hexForExtraArr[0], EYE_ATTR_NUM)
         checst = setExtraType(hexForExtraArr[2], CHEST_ATTR_NUM)
         head = setExtraType(hexForExtraArr[1], HEAD_ATTR_NUM)
+        hasTobacco = setHasTabacco(hexForExtraArr[0])
     }
 
     return {
@@ -77,7 +80,8 @@ export const createAttr = (text:string):AttributeProps => {
         facePoint: facePoint,
         head: head,
         eye: eye,
-        checst: checst
+        checst: checst,
+        hasTobacco: hasTobacco
     }
     
 }
@@ -100,3 +104,8 @@ const hex2Dec = (hex: string):number => {
  const colorCheck = (colorStr: string): string => {
      return colorStr === '000000' || colorStr === 'ffffff' ? '#a9a9a9' : `#${colorStr}`
  }
+
+ const setHasTabacco = (hex: string):boolean => {
+    const numForHead = hex2Dec(hex)
+    return (numForHead % 100) === 0
+}

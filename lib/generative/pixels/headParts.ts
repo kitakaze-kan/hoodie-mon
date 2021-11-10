@@ -52,16 +52,19 @@ export const SPEAKERPHONE_GRID:GridSet[] = [
 ]
 
 export const BIG_EAR_GRID:GridSet[] = [
-    {x:4, y:4,width: 6, height: 1},
-    {x:5, y:5,width: 6, height: 1},
-    {x:6, y:6,width: 5, height: 1},
-    {x:7, y:7,width: 3, height: 1},
-    {x:8, y:8,width: 1, height: 1},
-    {x:23, y:4,width: 6, height: 1},
-    {x:22, y:5,width: 6, height: 1},
-    {x:22, y:6,width: 5, height: 1},
-    {x:23, y:7,width: 3, height: 1},
-    {x:24, y:8,width: 1, height: 1},
+    {x:4, y:5,width: 8, height: 1},
+    {x:5, y:6,width: 6, height: 1},
+    {x:6, y:7,width: 4, height: 1},
+    {x:7, y:8,width: 2, height: 1},
+    {x:8, y:9,width: 1, height: 1},
+
+    {x:21, y:5,width: 8, height: 1},
+    {x:22, y:6,width: 6, height: 1},
+    {x:23, y:7,width: 4, height: 1},
+    {x:24, y:8,width: 2, height: 1},
+    {x:24, y:9,width: 1, height: 1},
+    
+    
 ]
 
 export const HOPTER_GRID:GridSet[] = [

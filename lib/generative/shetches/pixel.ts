@@ -1,6 +1,6 @@
 import type p5 from "p5";
 import { AttributeProps } from "../attributes/createAttribute";
-import {setBody, setChest, setEye, setFace, setHead} from "../pixels/base"
+import {setBody, setChest, setEye, setFace, setHead, setTabacco} from "../pixels/base"
 
 let attribute:AttributeProps = {
     name: "",
@@ -11,7 +11,8 @@ let attribute:AttributeProps = {
     facePoint: [],
     head: 0,
     eye: 0,
-    checst: 0
+    checst: 0,
+    hasTobacco: false
 }
 
 export const setAttribute = (a:AttributeProps) => {
@@ -40,6 +41,7 @@ export const pixelForSp = (p: p5) => {
         setHead(pc, attribute)
         setChest(pc, attribute)
         setEye(pc,attribute)
+        setTabacco(pc,attribute)
         p.image(pc, 8, 24)
     };
 

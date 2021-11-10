@@ -243,7 +243,7 @@ const SamplePage: NextPage = () => {
     }
 
     const isRightName = (name: string):boolean => {
-        if(name.match(/[^A-Za-z0-9]+/)) return false
+        if(name.match(/[^\x01-\x7E]/)) return false
         return true
     }
 
@@ -351,7 +351,7 @@ const SamplePage: NextPage = () => {
                 </div>
             </div>
             {showLoading && (
-                <LoadingModal />
+                <LoadingModal text={t.WAITING_FOR_MINT}/>
             )}
             {showModal && (
                 <BaseModal titleText={modalTitle}　mainText={modalMainText} onClickAcceptBtn={()=>closeModal()} onClickCloseModal={()=>closeModal()}/>

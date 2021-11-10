@@ -5,6 +5,7 @@ export enum CHEST_TYPES {
     DIAMOND,
     TRIANGLE,
     HEART,
+    WING
 }
 
 
@@ -39,6 +40,21 @@ export const TRIANGLE_GRID:GridSet[] = [
     {x:12, y:24,width: 9, height:1},
 ]
 
+export const WING_GRID:GridSet[] = [
+    {x:4, y:16,width: 1, height:7},
+    {x:5, y:17,width: 1, height:7},
+    {x:6, y:18,width: 1, height:6},
+    {x:7, y:19,width: 1, height:5},
+    {x:8, y:20,width: 1, height:4},
+    {x:9, y:21,width: 1, height:2},
+    {x:28, y:16,width: 1, height:7},
+    {x:27, y:17,width: 1, height:7},
+    {x:26, y:18,width: 1, height:6},
+    {x:25, y:19,width: 1, height:5},
+    {x:24, y:20,width: 1, height:4},
+    {x:23, y:21,width: 1, height:2},
+]
+
 export const setChestPart = (type: CHEST_TYPES):GridSet[] => {
     switch (type) {
         case CHEST_TYPES.NONE:
@@ -49,6 +65,8 @@ export const setChestPart = (type: CHEST_TYPES):GridSet[] => {
             return DIAMOND_GRID
         case CHEST_TYPES.TRIANGLE:
             return TRIANGLE_GRID
+        case CHEST_TYPES.WING:
+            return WING_GRID
         default:
             return []
     }
