@@ -11,7 +11,11 @@ export type GridSet = {
     width: number,
     height: number
 }
-export const PIXEL_SIZE = 5;
+export type MonoColorSet = {
+    base: string,
+    reverse: string
+}
+export const PIXEL_SIZE = 8;
 export const HOOD_GRID:GridSet[] = [
     {x:8, y:10,width: 1, height: 5},
     {x:9, y:8,width: 1, height: 2},
@@ -87,7 +91,7 @@ export const setBody = (p:p5, attr: AttributeProps) => {
         createPixel(p,grid.x, grid.y, grid.width, grid.height, attr.mainColor)
     })
     HEAD_GRID.forEach(grid => {
-        createPixel(p,grid.x, grid.y, grid.width, grid.height, "#000000")
+        createPixel(p,grid.x, grid.y, grid.width, grid.height, setMonoColor(attr).base)
     })
     BODY_GRID.forEach(grid => {
         createPixel(p,grid.x, grid.y, grid.width, grid.height, attr.mainColor)
@@ -96,13 +100,13 @@ export const setBody = (p:p5, attr: AttributeProps) => {
         createPixel(p,grid.x, grid.y, grid.width, grid.height, attr.subColor)
     })
     
-    createPixel(p,BODY_CHECK.x,BODY_CHECK.y,BODY_CHECK.width,BODY_CHECK.height,"#000000")
+    createPixel(p,BODY_CHECK.x,BODY_CHECK.y,BODY_CHECK.width,BODY_CHECK.height,setMonoColor(attr).base)
 }
 
 export const setFace = (p:p5, attr: AttributeProps) => {
 
     setFaceParts(attr.facePoint).forEach(grid => {
-        createPixel(p,grid.x, grid.y, grid.width, grid.height, "#ffffff")
+        createPixel(p,grid.x, grid.y, grid.width, grid.height, setMonoColor(attr).reverse)
     })
 }
 
@@ -150,4 +154,19 @@ const createPixel = (p:p5, x:number, y:number, width:number, height: number, col
     }
     img.updatePixels()
     p.image(img, x*PIXEL_SIZE, y*PIXEL_SIZE);
+}
+
+const setMonoColor = (attr: AttributeProps):MonoColorSet => {
+    if(attr.mainColor === "#000000" || attr.subColor === "#000000" || attr.accentColor === "#000000"){
+        return {
+            base: "#ffffff",
+            reverse: "#000000"
+        }
+    } else {
+        return {
+            base: "#000000",
+            reverse: "#ffffff"
+        }
+    }
+
 }

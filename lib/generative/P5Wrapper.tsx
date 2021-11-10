@@ -28,10 +28,8 @@ export const P5Wrapper: React.VFC<Props> = ({sketch, update, save, onClickSave})
   useEffect(() => {
     async function getImageBuffer() {
       if(instance && save) {
-        // instance.saveCanvas('my-hoodie-mon','png')
         if(wrapper.current?.hasChildNodes){
           const canvas = wrapper.current.firstChild as HTMLCanvasElement
-          // const uri = canvas.toDataURL()
           canvas.toBlob(async function(result) {
               onClickSave(result)
           }, 'image/jpeg');

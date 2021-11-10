@@ -26,7 +26,9 @@ interface HoodieMonTokenInterface extends ethers.utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "burn(uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
+    "getTokenIdFromOriginName(string)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
+    "isExistFromOriginName(string)": FunctionFragment;
     "mint(string,string)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -64,8 +66,16 @@ interface HoodieMonTokenInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getTokenIdFromOriginName",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isExistFromOriginName",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "mint",
@@ -160,7 +170,15 @@ interface HoodieMonTokenInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getTokenIdFromOriginName",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isApprovedForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isExistFromOriginName",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
@@ -332,11 +350,21 @@ export class HoodieMonToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    getTokenIdFromOriginName(
+      name: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { tokenId: BigNumber }>;
+
     isApprovedForAll(
       owner: string,
       operator: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    isExistFromOriginName(
+      name: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean] & { isExist: boolean }>;
 
     mint(
       tokenUri: string,
@@ -483,9 +511,19 @@ export class HoodieMonToken extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  getTokenIdFromOriginName(
+    name: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   isApprovedForAll(
     owner: string,
     operator: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isExistFromOriginName(
+    name: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -625,9 +663,19 @@ export class HoodieMonToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    getTokenIdFromOriginName(
+      name: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isApprovedForAll(
       owner: string,
       operator: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isExistFromOriginName(
+      name: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -836,9 +884,19 @@ export class HoodieMonToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getTokenIdFromOriginName(
+      name: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isApprovedForAll(
       owner: string,
       operator: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isExistFromOriginName(
+      name: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -989,9 +1047,19 @@ export class HoodieMonToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getTokenIdFromOriginName(
+      name: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isApprovedForAll(
       owner: string,
       operator: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isExistFromOriginName(
+      name: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

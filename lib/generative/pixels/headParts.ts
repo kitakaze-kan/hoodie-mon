@@ -10,15 +10,15 @@ export enum HEAD_TYPES {
 }
 
 export const EAR_GRID:GridSet[] = [
-    {x:7, y:5,width: 1, height: 4},
-    {x:8, y:4,width: 1, height:6},
-    {x:9, y:4,width: 1, height:4},
-    {x:10, y:4,width: 1, height:3},
+    {x:7, y:4,width: 1, height: 4},
+    {x:8, y:3,width: 1, height:6},
+    {x:9, y:3,width: 1, height:4},
+    {x:10, y:3,width: 1, height:3},
 
-    {x:25, y:5,width: 1, height: 4},
-    {x:24, y:4,width: 1, height:6},
-    {x:23, y:4,width: 1, height:4},
-    {x:22, y:4,width: 1, height:3},
+    {x:25, y:4,width: 1, height: 4},
+    {x:24, y:3,width: 1, height:6},
+    {x:23, y:3,width: 1, height:4},
+    {x:22, y:3,width: 1, height:3},
 ]
 
 export const HEADPHONE_GRID:GridSet[] = [
@@ -42,13 +42,13 @@ export const HEADPHONE_GRID:GridSet[] = [
 ]
 
 export const SPEAKERPHONE_GRID:GridSet[] = [
-    {x:4, y:11,width: 1, height: 3},
-    {x:5, y:10,width: 3, height: 5},
-    {x:5, y:6,width: 1, height: 4},
+    {x:3, y:11,width: 1, height: 3},
+    {x:4, y:10,width: 3, height: 5},
+    {x:4, y:6,width: 1, height: 4},
 
-    {x:28, y:11,width: 1, height: 3},
-    {x:25, y:10,width: 3, height: 5},
-    {x:27, y:6,width: 1, height: 4},
+    {x:29, y:11,width: 1, height: 3},
+    {x:26, y:10,width: 3, height: 5},
+    {x:28, y:6,width: 1, height: 4},
 ]
 
 export const BIG_EAR_GRID:GridSet[] = [

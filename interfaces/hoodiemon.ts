@@ -1,5 +1,5 @@
 export type HoodiemonType = {
-    tokenId: string
+    tokenId: string | null
     name: string
     address: string
     imageUrl: string

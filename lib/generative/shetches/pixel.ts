@@ -21,8 +21,8 @@ export const setAttribute = (a:AttributeProps) => {
 export const pixelForSp = (p: p5) => {
     let pc:p5.Graphics
     p.setup = () => { 
-        p.createCanvas(175, 175);
-        pc = p.createGraphics(160, 160);
+        p.createCanvas(280, 280);
+        pc = p.createGraphics(256, 256);
         p.noLoop()
 
         for (let element of document.getElementsByClassName("p5Canvas")) {
@@ -40,7 +40,7 @@ export const pixelForSp = (p: p5) => {
         setHead(pc, attribute)
         setChest(pc, attribute)
         setEye(pc,attribute)
-        p.image(pc, 5, 15)
+        p.image(pc, 8, 24)
     };
 
 };

@@ -11,9 +11,9 @@ const P5Wrapper = dynamic(() => import("../lib/generative/P5Wrapper"), { ssr: fa
 import { setAttribute, pixelForSp } from "../lib/generative/shetches/pixel";
 import { useEffect, useState } from "react";
 import { AttributeProps, createAttr } from "../lib/generative/attributes/createAttribute";
-import { setImageToIpfs, setIpfsJson } from "../lib/ipfs/manager";
+import { setImageToIpfs, setJsonToIpfs } from "../lib/ipfs/manager";
 import { HoodiemonType } from "../interfaces";
-import { createTokenDoc, getMintedTokens } from "../lib/firebase/store/hoodiemon";
+import { createTokenDoc, getMintedTokens, updateTokenId } from "../lib/firebase/store/hoodiemon";
 import { useTranslate } from "../lib/lang/useTranslate";
 import { LoadingModal } from "../components/LoadingModal";
 import { BaseModal } from "../components/BaseModal";
@@ -25,12 +25,11 @@ const SamplePage: NextPage = () => {
 
     // const PRE_PRICE = "0.002"
     // const PRICE = "0.006"
-    const PRE_PRICE = "5"
+    const PRE_PRICE = "0.1"
     const PRICE = "10"
     const [hoodiemonContract, setHoodiemonContract] = useState<HoodieMonToken | null>(null)
+    const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
     const [name, setName] = useState('')
-    // const [tokenImage, setTokenImage] = useState('')
-    // const [tokenUri, setTokenUri] = useState('')
     // const [balance, setBalance] = useState<number>(0)
     const [update, setUpdate] = useState(false)
     const [save, setSave] = useState(false)
@@ -52,8 +51,9 @@ const SamplePage: NextPage = () => {
             if (ethereumProvider && window.ethereum?.isMetaMask) {
                 await requestAccount()
 
-                const provider = new ethers.providers.Web3Provider(ethereumProvider);
-                const signer = provider.getSigner()
+                const prov = new ethers.providers.Web3Provider(ethereumProvider);
+                setProvider(prov)
+                const signer = prov.getSigner()
                 if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
 
                 try {
@@ -86,10 +86,12 @@ const SamplePage: NextPage = () => {
             await requestAccount()  
             try {
                 if(!hoodiemonContract) return
-                // const ownedTokenNum = await hoodiemonContract.balanceOf(connectedWalletAddress)
+                const ownedTokenNum = await hoodiemonContract.balanceOf(connectedWalletAddress)
                 // setBalance(Number(ownedTokenNum))
                 const totalSupply = await hoodiemonContract.totalSupply({from: connectedWalletAddress})
                 setTotalTokens(Number(totalSupply))
+                console.log("totalSupply", Number(totalSupply))
+                console.log("ownedTokenNum", Number(ownedTokenNum))
             } catch(error) {
                 console.log("error", error)
                 return;
@@ -121,8 +123,9 @@ const SamplePage: NextPage = () => {
         if (ethereumProvider && window.ethereum?.isMetaMask) {
             await requestAccount()
 
-            const provider = new ethers.providers.Web3Provider(ethereumProvider);
-            const signer = provider.getSigner()
+            const prov = new ethers.providers.Web3Provider(ethereumProvider);
+            setProvider(prov)
+            const signer = prov.getSigner()
             if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
 
             try {
@@ -162,49 +165,32 @@ const SamplePage: NextPage = () => {
         }
     }
 
-    const handleImageData = async (blob: Blob | null) => {
-        if(!blob) return
-        
+    const MintNFT = async (blob: Blob | null) => {
+        if(!(blob && hoodiemonContract)) return
+
+        console.log("MintNFT")
+        setShowLoading(true)
+
         try {
-            setShowLoading(true)
-            const ipfsImage = await setImageToIpfs(blob)
-            const ipfsJson = await setIpfsJson(ipfsImage, name, totalTokens)
-
-            if(!hoodiemonContract) {
-                setModalTitle(t.FAILURE_MODAL_TITLE)
-                setModalMainText("there is no contract")
-                setShowLoading(false)
-                setShowModal(true)
-                return
-            }
-
-            const transaction = totalTokens < 100 ? await hoodiemonContract.preMint(ipfsJson, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRE_PRICE)}) : await hoodiemonContract.mint(ipfsJson, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRICE)})
-            const res = await transaction.wait()
-            console.log('res', res)
-            if(res.events && res.events.length>0 && res.events[0].args){
-                const event = res.events[0].args
-                const tokenId:string = Number(event.tokenId).toString()
-                console.log('tokenId', tokenId)
-
-                const hoodiemonDoc: HoodiemonType = {
-                    tokenId: tokenId,
-                    name: name,
-                    address: connectedWalletAddress,
-                    imageUrl: ipfsImage,
-                    tokenUri: ipfsJson,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
+            let filter = hoodiemonContract.filters.Transfer(null, connectedWalletAddress, null);
+            hoodiemonContract.on(filter, async (from, to, value) => {
+                console.log(`from: ${from} | to: ${to} | value: ${value}`)
+                if("0x0000000000000000000000000000000000000000" === from && connectedWalletAddress === to){
+                    const isExist = await hoodiemonContract.isExistFromOriginName(name)
+                    if(isExist){
+                        const targetId = await hoodiemonContract.getTokenIdFromOriginName(name)
+                        if(targetId.toString() ===  value.toString()){
+                            await updateTokenId(connectedWalletAddress, name, value.toString())
+                        }
+                    }
                 }
-
-                console.log(hoodiemonDoc)
-                await createTokenDoc(connectedWalletAddress, tokenId, hoodiemonDoc)
-            } else {
-                setModalTitle(t.FAILURE_MODAL_TITLE)
-                setModalMainText(t.FAILURE_MODAL_TEXT)
-            }
-
-            setShowLoading(false)
-            setShowModal(true)
+            });
+            
+            const imageToIpfs = await setImageToIpfs(blob)
+            const jsonToIpfs = await setJsonToIpfs(imageToIpfs, name)
+            const transaction = totalTokens < 100 ? await hoodiemonContract.preMint(jsonToIpfs, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRE_PRICE)}) : await hoodiemonContract.mint(jsonToIpfs, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRICE)})
+            await transaction.wait()
+            await addToFirestore(imageToIpfs, jsonToIpfs)
         } catch (error) {
             console.log("error", error)
             setModalTitle(t.FAILURE_MODAL_TITLE)
@@ -212,6 +198,21 @@ const SamplePage: NextPage = () => {
             setShowLoading(false)
             setShowModal(true)
         }
+        setShowLoading(false)
+        setShowModal(true)
+    }
+
+    const addToFirestore = async (tokenImage: string, tokenUri: string) => {
+        const hoodiemonDoc: HoodiemonType = {
+            tokenId: null,
+            name: name,
+            address: connectedWalletAddress,
+            imageUrl: tokenImage,
+            tokenUri: tokenUri,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }
+        await createTokenDoc(connectedWalletAddress, hoodiemonDoc)
     }
 
     const toCheckTokenUri = (tokenUri: string) => {
@@ -223,8 +224,7 @@ const SamplePage: NextPage = () => {
         if(!hoodiemonContract) return
         try {
             const transaction = await hoodiemonContract.withdraw({ from: connectedWalletAddress})
-            const res = await transaction.wait()
-            console.log('res', res)
+            await transaction.wait()
         } catch (error) {
             console.log(error)
         }
@@ -275,7 +275,7 @@ const SamplePage: NextPage = () => {
                             <div>
                                 {(currentAttr && !!name) ? (
                                     <div className="flex flex-auto justify-center items-center my-6">
-                                        <P5Wrapper sketch={pixelForSp} update={update} save={save} onClickSave={handleImageData}/>
+                                        <P5Wrapper sketch={pixelForSp} update={update} save={save} onClickSave={MintNFT}/>
                                     </div>
                                 ): (
                                     <div className="pb-4">
@@ -320,7 +320,7 @@ const SamplePage: NextPage = () => {
                             {mintedTokens && (
                                 mintedTokens.map(token => {
                                     return (
-                                        <div key={token.tokenId} className="sm:px-2 max-w-xs text-center mx-auto">
+                                        <div key={token.name} className="sm:px-2 max-w-xs text-center mx-auto">
                                             <img src={token.imageUrl} className="w-full h-auto object-contain mx-auto" />
                                             <div className="text-left">
                                                 <p className="text-xs sm:text-lg font-bold text-left pt-4 px-2">#{token.tokenId}</p>

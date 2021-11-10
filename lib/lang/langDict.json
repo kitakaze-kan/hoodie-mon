@@ -1,15 +1,15 @@
 {
     "TITLE": {
-        "ja": "Hoodie-Mon",
-        "en": "Hoodie-Mon"
+        "ja": "The Hoodie Crew",
+        "en": "The Hoodie Crew"
     },
     "SUB_TITLE": {
         "ja": "Names and natures often agree - 名は体を表す -",
         "en": "Names and natures often agree"
     },
     "DESCRIPTION": {
-        "ja": "Hoodie-Monは、あなたに与えられた名前によって生まれる、世界に一つだけのモンスターです。ブロックチェーン上に生成されます。同じ名前の個体は存在せず、従って全てのHoodie-Monは独自の特徴を持っています。さっそく、好きな名前を入力してあなただけのHoodie-Monを作成しましょう。",
-        "en": "Hoodie-Mon is a one-of-a-kind monster, created by the name you give it. They are generated on the blockchain. No two individuals have the same name, so every Hoodie-Mon has its own unique characteristics.So get started and create your own Hoodie-Mon by entering a name of your choice."
+        "ja": "The Hoodie Crewは、あなたに与えられた名前によって生まれる、世界に一つだけのモンスターです。ブロックチェーン上に生成されます。同じ名前の個体は存在せず、従って全てのHoodie Crewは独自の特徴を持っています。さっそく、好きな名前を入力してあなただけのHoodie Crewを作成しましょう。",
+        "en": "The Hoodie Crew is a one-of-a-kind monster, created by the name you give it. They are generated on the blockchain. No two individuals have the same name, so every Hoodie Crew has its own unique characteristics.So get started and create your own Hoodie Crew by entering a name of your choice."
     },
     "BUTTON_TITLE_PREVIEW": {
         "ja": "試してみる",
@@ -32,15 +32,15 @@
         "en": "Connect Wallet"
     },
     "SCCESS_MODAL_TITLE": {
-        "ja": "新しいHoodie-monが産まれました！",
-        "en": "Congrat! you got the new Hoodie-mon!"
+        "ja": "新しいHoodie Crewが産まれました！",
+        "en": "Congrat! you got the new Hoodie Crew!"
     },
     "SCCESS_MODAL_TEXT": {
-        "ja": "この画面を再読み込みして、新しいhoodie-monを確認しましょう。",
+        "ja": "この画面を再読み込みして、新しいHoodie Crewを確認しましょう。",
         "en": "Please refresh this page to see your hoodie."
     },
     "FAILURE_MODAL_TITLE": {
-        "ja": "Hoodie-monの生成に失敗しました。。",
+        "ja": "Hoodie Crewの生成に失敗しました。。",
         "en": "there are Some thing wrong..."
     },
     "FAILURE_MODAL_TEXT": {
