@@ -23,14 +23,10 @@ const SamplePage: NextPage = () => {
 
     const t = useTranslate()
 
-    // const PRE_PRICE = "0.002"
-    // const PRICE = "0.006"
-    const PRE_PRICE = "0.1"
+    const PRE_PRICE = "3"
     const PRICE = "10"
     const [hoodiemonContract, setHoodiemonContract] = useState<HoodieMonToken | null>(null)
-    const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
     const [name, setName] = useState('')
-    // const [balance, setBalance] = useState<number>(0)
     const [update, setUpdate] = useState(false)
     const [save, setSave] = useState(false)
     const [isMintable, setIsMintable] = useState(false)
@@ -52,7 +48,6 @@ const SamplePage: NextPage = () => {
                 await requestAccount()
 
                 const prov = new ethers.providers.Web3Provider(ethereumProvider);
-                setProvider(prov)
                 const signer = prov.getSigner()
                 if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
 
@@ -124,7 +119,6 @@ const SamplePage: NextPage = () => {
             await requestAccount()
 
             const prov = new ethers.providers.Web3Provider(ethereumProvider);
-            setProvider(prov)
             const signer = prov.getSigner()
             if(!process.env.NEXT_PUBLIC_HOODIEMON_ADDRESS) return
 

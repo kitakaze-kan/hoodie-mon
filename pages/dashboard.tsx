@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { isMobile } from "react-device-detect"
-import { ethers, BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 import detectEthereumProvider from '@metamask/detect-provider'
 import HoodieMonTokenArtifact from '../src/artifacts/contracts/HoodieMonToken.sol/HoodieMonToken.json' 
 import { HoodieMonToken } from '../typechain'
@@ -8,8 +8,6 @@ import { useEffect, useState } from "react";
 import { HoodiemonType } from "../interfaces";
 import { getAllMintedTokens } from "../lib/firebase/store/hoodiemon";
 import { useTranslate } from "../lib/lang/useTranslate";
-import { LoadingModal } from "../components/LoadingModal";
-import { BaseModal } from "../components/BaseModal";
 
 type TokenURIType = {
     tokenid: number
