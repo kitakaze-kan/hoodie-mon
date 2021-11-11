@@ -1,11 +1,11 @@
 import type { GridSet } from "./base"
 
-export enum CHEST_TYPES {
-    NONE, 
+export enum CHEST_TYPES { 
     DIAMOND,
+    NONE,
     TRIANGLE,
+    WING,
     HEART,
-    WING
 }
 
 

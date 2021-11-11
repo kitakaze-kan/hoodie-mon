@@ -68,7 +68,7 @@ export const createAttr = (text:string):AttributeProps => {
         eye = setExtraType(hexForExtraArr[0], EYE_ATTR_NUM)
         checst = setExtraType(hexForExtraArr[2], CHEST_ATTR_NUM)
         head = setExtraType(hexForExtraArr[1], HEAD_ATTR_NUM)
-        hasTobacco = setHasTabacco(hexForExtraArr[0])
+        hasTobacco = setHasTabacco(hexForExtraArr[3])
     }
 
     return {

@@ -15,7 +15,7 @@ task("accounts", "Prints the list of accounts", async (hre:HardhatRuntimeEnviron
 });
 
  export default {
-  // defaultNetwork: "matic",
+  defaultNetwork: "polygon",
   solidity: "0.8.4",
   paths: {
     artifacts: './src/artifacts'
@@ -28,12 +28,18 @@ task("accounts", "Prints the list of accounts", async (hre:HardhatRuntimeEnviron
       url: process.env.ROPSTEN_URL ? process.env.ROPSTEN_URL : 'https://ropsten.infura.io/v3/2b01848202b443298da25cc623ca2fde',
       accounts: [`0x${process.env.ROPSTEN_PRIVATE_KEY}`]
     },
-    matic: {
+    mumbai: {
       url: process.env.MATIC_TEST_URL ? process.env.MATIC_TEST_URL : 'https://rpc-mumbai.maticvigil.com',
       accounts: [`0x${process.env.MATIC_TEST_PRIVATE_KEY}`],
       gas: 2100000,
       gasPrice: 8000000000,
       saveDeployments: true,
+    },
+    polygon: {
+      url: process.env.MATIC_MAIN_URL ? process.env.MATIC_MAIN_URL : 'https://polygon-rpc.com/',
+      accounts: [`0x${process.env.MATIC_MAIN_PRIVATE_KEY}`],
+      gas: 2100000,
+      gasPrice: 8000000000,
     }
   }
 };

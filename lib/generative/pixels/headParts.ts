@@ -4,8 +4,8 @@ export enum HEAD_TYPES {
     NONE,
     HEADPHONE,
     EAR,
-    HOPTER,
     BIG_EAR,
+    HOPTER,
     SPEAKERPHONE,
 }
 

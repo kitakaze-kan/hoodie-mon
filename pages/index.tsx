@@ -257,7 +257,7 @@ const SamplePage: NextPage = () => {
                         <p className="text-sm sm:text-xl ">{t.DESCRIPTION}</p>
                     </div>
                     <div className="py-2">
-                    <p className="text-sm sm:text-xl py-1 text-white">LIMIT: 10,000 pieces</p>
+                        <p className="text-sm sm:text-xl py-1 text-white">LIMIT: 10,000 pieces</p>
                         {totalTokens < 100 ? (
                             <>
                                 <p className="text-sm sm:text-xl py-1 text-white">PRICE: {`${PRE_PRICE}MATIC at pre sale (the only first 100 pieces.)`} </p>
@@ -323,6 +323,7 @@ const SamplePage: NextPage = () => {
                             <p className="text-lg p-4">{message}</p>
                         )}
                     </div>
+                    <p className="text-sm sm:text-lg pt-3 text-white">CONTRACT ADDRESS: {`${process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS ? process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS : ""}`} </p>
                     <div className="py-10 mx-auto text-center">
                         <h1 className="font-bold text-2xl sm:text-4xl py-2 text-white">{t.TITLE_FOR_OWNED_TOKEN}</h1>
                         <div className="sm:flex sm:flex-1 py-4 sm:py-12">
