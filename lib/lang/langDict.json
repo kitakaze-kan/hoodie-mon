@@ -4,7 +4,7 @@
         "en": "The Hoodie Crew"
     },
     "SUB_TITLE": {
-        "ja": "Names and natures often agree - 名は体を表す -",
+        "ja": "Names and natures often agree",
         "en": "Names and natures often agree"
     },
     "DESCRIPTION": {
@@ -20,8 +20,8 @@
         "en": "Mint Now"
     },
     "TITLE_FOR_OWNED_TOKEN": {
-        "ja": "トークン一覧",
-        "en": "Your Token"
+        "ja": "Your Minted Token",
+        "en": "Your Minted Token"
     },
     "LINK_TOKEN_URI": {
         "ja": "トークンURIを見る",
@@ -50,6 +50,10 @@
     "NAME_CHECK_CAUTION": {
         "ja": "半角文字以外が含まれています",
         "en": "Contains non-byte characters."
+    },
+    "DUPLICATE_NAME_CAUTION": {
+        "ja": "この名前はすでに使用されています",
+        "en": "This name is already owned."
     },
     "WAITING_FOR_MINT": {
         "ja": "MINTしています。。このままお待ちください。(数十秒〜数分かかる場合があります)",

@@ -17,6 +17,7 @@ import { createTokenDoc, getMintedTokens, updateTokenId } from "../lib/firebase/
 import { useTranslate } from "../lib/lang/useTranslate";
 import { LoadingModal } from "../components/LoadingModal";
 import { BaseModal } from "../components/BaseModal";
+import Footer from '../components/Footer'
 
 
 const SamplePage: NextPage = () => {
@@ -28,6 +29,7 @@ const SamplePage: NextPage = () => {
     const [hoodieCrewContract, setHoodieCrewContract] = useState<HoodieCrewToken | null>(null)
     const [name, setName] = useState('')
     const [shouldShowCaution, setShouldShowCaution] = useState(false)
+    const [shouldShowDuplicateNameCaution, setShouldShowDuplicateNameCaution] = useState(false)
     const [update, setUpdate] = useState(false)
     const [save, setSave] = useState(false)
     const [isMintable, setIsMintable] = useState(false)
@@ -93,7 +95,6 @@ const SamplePage: NextPage = () => {
         async function getMintedTokensFromFB() {
             if(!(connectedWalletAddress && hoodieCrewContract)) return
             const tokens = await getMintedTokens(connectedWalletAddress)
-            //chekc!!!
             for(const token of tokens) {
                 if(!token.tokenId){
                     const isExist = await hoodieCrewContract.isExistFromOriginName(token.name)
@@ -116,6 +117,7 @@ const SamplePage: NextPage = () => {
             return
         }
         setShouldShowCaution(!isRightName(name))
+        setShouldShowDuplicateNameCaution(false)
     },[name])
 
     async function requestAccount() {
@@ -172,9 +174,18 @@ const SamplePage: NextPage = () => {
 
     const MintNFT = async (blob: Blob | null) => {
         if(!(blob && hoodieCrewContract)) return
+
+        //check name
+        const isExist = await hoodieCrewContract.isExistFromOriginName(name)
+        if(isExist) {
+            setShouldShowDuplicateNameCaution(true)
+            return
+        }
+
         setShowLoading(true)
 
         try {
+            //mint event listener
             let filter = hoodieCrewContract.filters.Transfer(null, connectedWalletAddress, null);
             hoodieCrewContract.on(filter, async (from, to, value) => {
                 if("0x0000000000000000000000000000000000000000" === from && connectedWalletAddress === to){
@@ -187,11 +198,14 @@ const SamplePage: NextPage = () => {
                     }
                 }
             });
-            
+
+            //save ipfs and mint
             const imageToIpfs = await setImageToIpfs(blob)
             const jsonToIpfs = await setJsonToIpfs(imageToIpfs, name)
             const transaction = totalTokens < 100 ? await hoodieCrewContract.preMint(jsonToIpfs, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRE_PRICE)}) : await hoodieCrewContract.mint(jsonToIpfs, name, { from: connectedWalletAddress, value:  ethers.utils.parseEther(PRICE)})
             await transaction.wait()
+
+            //save to db
             await addToFirestore(imageToIpfs, jsonToIpfs)
         } catch (error) {
             console.log("error", error)
@@ -219,17 +233,6 @@ const SamplePage: NextPage = () => {
 
     const toCheckTokenUri = (tokenUri: string) => {
         window.open(tokenUri, '_blank')
-    }
-
-    const withdraw = async () => {
-
-        if(!hoodieCrewContract) return
-        try {
-            const transaction = await hoodieCrewContract.withdraw({ from: connectedWalletAddress})
-            await transaction.wait()
-        } catch (error) {
-            console.log(error)
-        }
     }
 
     const closeModal = () => {
@@ -317,13 +320,16 @@ const SamplePage: NextPage = () => {
                                 {shouldShowCaution && (
                                     <p className="text-red-400 pt-2">{t.NAME_CHECK_CAUTION}</p>
                                 )}
+                                {shouldShowDuplicateNameCaution && (
+                                    <p className="text-red-400 pt-2">{t.DUPLICATE_NAME_CAUTION}</p>
+                                )}
                             </div>
                         )}
                         {message && (
                             <p className="text-lg p-4">{message}</p>
                         )}
                     </div>
-                    <p className="text-sm sm:text-lg pt-3 text-white">CONTRACT ADDRESS: {`${process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS ? process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS : ""}`} </p>
+                    <p className="text-xs sm:text-lg pt-3 text-white">CONTRACT ADDRESS: {`${process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS ? process.env.NEXT_PUBLIC_HOODIECREW_ADDRESS : ""}`} </p>
                     <div className="py-10 mx-auto text-center">
                         <h1 className="font-bold text-2xl sm:text-4xl py-2 text-white">{t.TITLE_FOR_OWNED_TOKEN}</h1>
                         <div className="sm:flex sm:flex-1 py-4 sm:py-12">
@@ -343,14 +349,9 @@ const SamplePage: NextPage = () => {
                             )}
                         </div>
                     </div>
-                    <button
-                        className="bg-purple-600 border-purple-600 text-white h-12 px-4 sm:px-4 text-xs sm:text-lg rounded-md w-40 sm:w-96 font-bold"
-                            onClick={() => withdraw()}
-                        >
-                            Withdraw
-                    </button>
                 </div>
             </div>
+            <Footer />
             {showLoading && (
                 <LoadingModal text={t.WAITING_FOR_MINT}/>
             )}
